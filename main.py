@@ -42,6 +42,7 @@ plt.pie(
 
 plt.title("Lung_Cancer")
 plt.show()
+
 #Plotting smoking ratio
 plt.pie(
     df['SMOKING'].value_counts(),
@@ -98,14 +99,14 @@ xgbclassifier=XGBClassifier(use_label_encoder=False, eval_metric='logloss',rando
 xgbclassifier.fit(x_train,y_train)
 y_pred=xgbclassifier.predict(x_test)
 
-# calculation of accuracy, precision, recall, f1-score
+
 accuracy = accuracy_score(y_test, y_pred) * 100
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred)
 print(f"Accuracy: {accuracy:.2f}% | Precision: {precision:.4f} | Recall: {recall:.4f} | F1-Score: {f1:.4f}")
 
-# confusion matrix
+
 cm = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(4, 3))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=["Negative", "Positive"], yticklabels=["Negative", "Positive"])
@@ -122,7 +123,7 @@ print("numpy", np.__version__)
 print("pandas", pd.__version__)
 print("seaborn", sns.__version__)
 
-# Trying different models
+
 models={
 "LogisticRegression" : LogisticRegression(),
 "RandomForest" : RandomForestClassifier(n_estimators=100, random_state=42),
@@ -152,7 +153,7 @@ gb_classifier.fit(x_train, y_train)
 
 y_pred = gb_classifier.predict(x_test)
 
-# calculation of accuracy, precision, recall, f1-score
+
 accuracy = accuracy_score(y_test, y_pred) * 100
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
@@ -229,6 +230,52 @@ results = model.fit(
     callbacks=callbacks,
     verbose=1
 )
+
+plt.figure(figsize=(7,5))
+plt.plot(results.history['accuracy'], label='Train Accuracy')
+plt.plot(results.history['val_accuracy'], label='Val Accuracy')
+plt.title("Training vs Validation Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.show()
+
+
+plt.figure(figsize=(7,5))
+plt.plot(results.history['loss'], label='Train Loss')
+plt.plot(results.history['val_loss'], label='Val Loss')
+plt.title("Training vs Validation Loss")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend()
+plt.show()
+
+
+true_labels = test_data.classes
+
+
+pred_probs = model.predict(test_data)
+pred_labels = np.argmax(pred_probs, axis=1)
+
+
+acc = accuracy_score(true_labels, pred_labels)
+print("Test Accuracy:", acc)
+
+
+class_labels = list(test_data.class_indices.keys())
+print("\nClassification Report:\n")
+print(classification_report(true_labels, pred_labels, target_names=class_labels))
+
+
+cm = confusion_matrix(true_labels, pred_labels)
+
+plt.figure(figsize=(8,6))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=class_labels, yticklabels=class_labels)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
 
 
 model.save("model.keras")
